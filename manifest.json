@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "InWorld Voice (Kai Build)",
+  "version": "1.0.0",
+  "description": "Select text to hear it spoken via InWorld TTS (SA-accent friendly, ~90% cheaper than ElevenLabs). Optional popup for clipboard transcription via InWorld STT.",
+  "permissions": ["storage", "offscreen", "contextMenus", "commands"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "InWorld Voice" },
+  "content_scripts": [{ "matches": ["<all_urls>"], "js": ["content.js"], "run_at": "document_idle" }],
+  "options_page": "options.html",
+  "commands": {
+    "stt-paste": { "suggested_key": { "default": "Alt+Shift+V" }, "description": "Transcribe clipboard audio via InWorld STT" }
+  },
+  "icons": {}
+}

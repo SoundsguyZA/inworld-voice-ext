@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+ body{font-family:system-ui;width:280px;padding:12px;background:#0b1414;color:#e5e5e5}
+ h3{margin:0 0 8px;color:#2dd4bf;font-size:14px}
+ input,select{width:100%;margin:4px 0;padding:6px;background:#152020;border:1px solid #1f3a3a;color:#e5e5e5;border-radius:4px;box-sizing:border-box}
+ button{width:100%;margin-top:8px;padding:8px;background:#0d9488;border:0;color:#fff;border-radius:4px;cursor:pointer}
+ small{color:#7a9a9a;display:block;margin-top:6px}
+</style></head><body>
+<h3>InWorld Voice</h3>
+<label>API Key (Basic)</label><input id="k" type="password" placeholder="paste InWorld key">
+<label>Voice</label><input id="v" placeholder="Dennis">
+<label>Model</label><input id="m" placeholder="inworld-tts-1">
+<button id="save">Save</button>
+<button id="test">Test Voice</button>
+<div id="msg"></div>
+<small>Select text on any page → ▶ button. Alt+Shift+V = transcribe clipboard audio. Repo: SoundsguyZA/inworld-voice-ext</small>
+<script src="popup.js"></script>
+</body></html>
