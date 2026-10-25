@@ -1,4 +1,3 @@
-import { DEFAULTS } from './config.js';
 chrome.runtime.onInstalled.addListener(async () => {
   const s = await chrome.storage.local.get(Object.keys(DEFAULTS));
   const merged = { ...DEFAULTS, ...s };
@@ -44,37 +43,24 @@ async function speakText(text) {
 async function sttAudio(b64, settings) {
   const conf = { modelId: settings.sttModelId || 'groq/whisper-large-v3', languageCode: settings.sttLang || 'en-ZA', sampleRateHertz: settings.sttSampleRate || 16000, audioEncoding: settings.audioEncoding || 2 };
   const boundary = '----iwvoice' + Date.now();
-  const parts = [];
-  parts.push(`--${boundary}
-
-Content-Disposition: form-data; name="transcribeConfig"
-
-Content-Type: application/json
-
-
-
-${JSON.stringify(conf)}
-
-`);
-  const audioBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  parts.push(`--${boundary}
-
-Content-Disposition: form-data; name="file"; filename="audio.wav"
-
-Content-Type: audio/wav
-
-
-
-`);
   const enc = new TextEncoder();
-  const body = [...parts.map(p => enc.encode(p)), audioBytes, enc.encode(`
-
---${boundary}--
-
-`)];
-  const blob = new Blob(body, { type: 'multipart/form-data; boundary=' + boundary });
+  const audioBytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const CRLF = String.fromCharCode(13, 10);
+  const pre = enc.encode(
+    '--' + boundary + CRLF +
+    'Content-Disposition: form-data; name="transcribeConfig"' + CRLF +
+    'Content-Type: application/json' + CRLF + CRLF +
+    JSON.stringify(conf) + CRLF
+  );
+  const fileHead = enc.encode(
+    '--' + boundary + CRLF +
+    'Content-Disposition: form-data; name="file"; filename="audio.wav"' + CRLF +
+    'Content-Type: audio/wav' + CRLF + CRLF
+  );
+  const tail = enc.encode(CRLF + '--' + boundary + '--' + CRLF);
+  const blob = new Blob([pre, fileHead, audioBytes, tail], { type: 'multipart/form-data; boundary=' + boundary });
   const r = await fetch('https://api.inworld.ai/stt/v1/transcribe', { method: 'POST', headers: { 'Authorization': 'Basic ' + (settings.iwKey || '') }, body: blob });
   if (!r.ok) return { error: 'STT ' + r.status };
   const d = await r.json();
-  return { transcript: d.transcription?.transcript || '' };
+  return { transcript: d.transcription && d.transcription.transcript || '' };
 }
