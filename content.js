@@ -31,9 +31,13 @@ function showBtn(sel, text) {
 let curAudio = null;
 function playAudio(b64) {
   if (curAudio) { curAudio.pause(); curAudio = null; }
-  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  const blob = new Blob([bytes], { type: 'audio/mpeg' });
-  curAudio = new Audio(URL.createObjectURL(blob));
-  curAudio.play();
+  try {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const blob = new Blob([bytes], { type: 'audio/mpeg' });
+    curAudio = new Audio(URL.createObjectURL(blob));
+    curAudio.play().catch(() => { curAudio.play(); });
+  } catch (e) { console.error('IW playback', e); }
 }
 function hideBtn() { if (btn) { btn.remove(); btn = null; } }
